@@ -2,7 +2,7 @@ reflow_md () {
     file=$1
     yaml="$(sed "/^---$/,/^---$/p" -n $file)"
     body="$(yamlnt $file)"
-    body="$( fmt <(echo $body) -w 72 )"
+    body=$( fmt <(echo "$body") -w 72 )
 
     if [[ -z $yaml ]]; then
         echo "$body"
