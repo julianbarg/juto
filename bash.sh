@@ -1,26 +1,14 @@
 reflow_md () {
     file=$1
+    yaml=$(sed "/^---$/,/^---$/p" -n $file)
+    body=$(yamlnt $file)
+    body=$( fmt <(echo $body) -w 72 )
 
-    tmp_front=$( mktemp )
-    tmp_content_before=$( mktemp )
-    tmp_content_after=$( mktemp )
-    trap "rm -f $tmp_front" EXIT
-    trap "rm -f $tmp_content_before" EXIT
-    trap "rm -f $tmp_content_after" EXIT
-
-    sed "/^---$/,/^---$/p" -n $file > $tmp_front
-    yamlnt $file > $tmp_content_before
-    fmt $tmp_content_before -w 72 > $tmp_content_after
-
-    if [[ $(cat -v $tmp_front) == "" ]]; then
-        cat $tmp_content_after > $file
+    if [[ -z $yaml ]]; then
+        echo "$body"
     else
-        cat $tmp_front $tmp_content_after
+        echo -e "${yaml}\n${body}"
     fi
-
-    rm $tmp_front
-    rm $tmp_content_before
-    rm $tmp_content_after
 }
 
 yamlify () {
