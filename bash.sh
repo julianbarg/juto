@@ -4,16 +4,25 @@ reflow_md () {
     tmp_front=$( mktemp )
     tmp_content_before=$( mktemp )
     tmp_content_after=$( mktemp )
-    trap "rm -f $tmp_front"
-    trap "rm -f $tmp_content_before"
-    trap "rm -f $tmp_content_after"
+    trap "rm -f $tmp_front" EXIT
+    trap "rm -f $tmp_content_before" EXIT
+    trap "rm -f $tmp_content_after" EXIT
 
     grep -z -o "\-\-\-.*\-\-\-" $file > $tmp_front
     yamlnt $file > $tmp_content_before
     fmt $tmp_content_before -w 72 > $tmp_content_after
 
-    # Featuring stupid way to insert newline.
-    cat $tmp_front <(echo) $tmp_content_after
+    if [[ $(cat -v $tmp_front) == "" ]]; then
+        cat $tmp_content_after > $file
+    else
+        # Featuring stupid way to insert newline.
+        sed -i "1s/.*/\n&/" $tmp_content_after
+        cat $tmp_front $tmp_content_after
+    fi
+
+    rm $tmp_front
+    rm $tmp_content_before
+    rm $tmp_content_after
 }
 
 yamlify () {
