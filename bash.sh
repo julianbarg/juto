@@ -33,10 +33,4 @@ yamladd () {
 yamlnt () {
     file=$1
     sed "/^---$/,/^---$/d" $file
-} 
-
-yamldo () {
-    file=$1
-    front_matter=$( grep -z -o "\-\-\-.*\-\-\-" $file )
-    `$2` $( yamlnt $file )
 }
