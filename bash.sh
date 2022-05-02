@@ -1,18 +1,5 @@
 today=$(date +%F)
 
-reflow_md () {
-    file=$1
-    yaml="$(sed "/^---$/,/^---$/p" -n $file)"
-    body="$(yamlnt $file)"
-    body=$( fmt <(echo "$body") -w 72 )
-
-    if [[ -z $yaml ]]; then
-        echo "$body" > $file
-    else
-        echo -e "${yaml}\n${body}" > $file
-    fi
-}
-
 yamlify () {
     file=$1
     yq -f=extract "." $file
@@ -35,6 +22,7 @@ yamlnt () {
 default_header=$(printf "%s\n"\
     "---"\
     "actors: ''"\
+    "title: ''"\
     "added: ${today}"\
     "date: ''"\
     "factiva: ''"\
@@ -42,7 +30,7 @@ default_header=$(printf "%s\n"\
     "link: ''"\
     "location: ''"\
     "source: ''"\
-    "title: ''"\
+    "type: ''"\
     "iterations: ''"\
     "---")
 
@@ -55,6 +43,80 @@ toumd () {
 
 add_header () {
     file=$1
-    (echo "$default_header" && cat $file) > tmp
-    mv tmp $file
+    tmp=$(mktemp)
+    (echo "$default_header" && cat $file) > $tmp
+    mv $tmp $file
+}
+
+reflow_md () {
+    file=$1
+    yaml="$(sed "/^---$/,/^---$/p" -n $file)"
+    body="$(yamlnt $file)"
+    body=$( fmt <(echo "$body") -w 72 )
+
+    if [[ -z $yaml ]]; then
+        echo "$body" > $file
+    else
+        echo -e "${yaml}\n${body}" > $file
+    fi
+}
+
+prmd () {
+    file=$1
+    reflow_md $file
+    add_header $file
+}
+
+latest () {
+    local number
+    POSITIONAL_ARGS=()
+    for i in "$@"; do
+        case $i in
+            -n)
+             number="$2"
+             shift
+             shift
+             ;;
+            *)
+             POSITIONAL_ARGS+=("$1")
+             shift
+             ;;
+        esac
+    done
+    set -- "${POSITIONAL_ARGS[@]}"
+    
+    if [[ -z $number ]]; then
+        number=1
+    fi
+
+    folder=$1
+    ls $folder -t | head -n $number
+}
+
+bind_pdfs () {
+    POSITIONAL_ARGS=()
+    for i in "$@"; do
+        case $i in
+            -n)
+             number="$2"
+             shift
+             shift
+             ;;
+            *)
+             POSITIONAL_ARGS+=("$1")
+             shift
+             ;;
+        esac
+    done
+    set -- "${POSITIONAL_ARGS[@]}"
+    out=$1
+    
+    if [[ -z $number ]]; then
+        number=2
+    fi
+
+    files="$( ls $folder -t | head -n $number | tac )"
+    tmp=$(mktemp)
+    pdftk $files cat output $tmp
+    mv $tmp $out
 }
