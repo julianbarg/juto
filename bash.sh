@@ -120,3 +120,5 @@ bind_pdfs () {
     pdftk $files cat output $tmp
     mv $tmp $out
 }
+
+alias jq=yq
