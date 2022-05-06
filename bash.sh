@@ -69,11 +69,17 @@ prmd () {
 
 latest () {
     local number
+    local recursive
     POSITIONAL_ARGS=()
     for i in "$@"; do
         case $i in
             -n)
              number="$2"
+             shift
+             shift
+             ;;
+            -r)
+             recursive="true"
              shift
              shift
              ;;
@@ -84,13 +90,20 @@ latest () {
         esac
     done
     set -- "${POSITIONAL_ARGS[@]}"
+    folder=$1
     
     if [[ -z $number ]]; then
         number=1
     fi
 
-    folder=$1
-    ls $folder -t | head -n $number
+    if [[ "$recursive" = true ]]; then
+        find $folder -not -path '*/.*' -type f -printf '%T@ %p\n' \
+            | sort -n \
+            | tail -"$number" \
+            | cut -f2- -d" "
+    else
+        ls $folder -t | head -n $number
+    fi    
 }
 
 bind_pdfs () {
@@ -120,3 +133,5 @@ bind_pdfs () {
     pdftk $files cat output $tmp
     mv $tmp $out
 }
+
+alias open="xdg-open"
