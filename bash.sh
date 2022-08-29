@@ -150,7 +150,7 @@ md () {
 
 perm () {
     name=$1
-    mv "$HOME/Documents/temp.docx" "$HOME/Downloads/$name"
+    mv "$HOME/out/temp.docx" "$HOME/out/$name"
 }
 
 increment () {
@@ -190,4 +190,8 @@ increment () {
         print line
     }' "$FILE" > $tmp
     mv $tmp "$FILE" 
+}
+
+opl () {
+    open $(latest $HOME/Downloads)
 }
