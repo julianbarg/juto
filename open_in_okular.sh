@@ -6,7 +6,7 @@
 
 if [[ $( wmctrl -l | grep "okular" ) ]]; then
 	wmctrl -a "okular"
-	wmctrl -R "okular"
+	# wmctrl -R "okular"
 	sleep 0.3
 fi
 
