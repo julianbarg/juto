@@ -53,6 +53,8 @@ add_lit () {
     SOURCE=$HOME/bibliography.yaml
     VARS="\"doi\",\"container-title\", \"title-short\", \"container-title-short\", \"author\""
 
+    YAML="$( yq "." $SOURCE )"
+
     add_lit_one () {
         local FILE=$1
         local INPLACE=$2
@@ -72,7 +74,7 @@ add_lit () {
             | pick([$VARS]) \
             | .journal = .container-title \
             | .journal_short = .container-title-short \
-            | del(.container-title, .container-title-short)" $SOURCE \
+            | del(.container-title, .container-title-short)" <(echo "$YAML") \
             > $tmpfile
         yq ". *= load(\"$tmpfile\")" $FILE $INPLACE_ARG -f=process
         if [[ $VERBOSE = 'yes' ]]; then
