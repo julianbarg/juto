@@ -4,8 +4,8 @@
 # Note: -R also works but turns off any flags like
 # "Always on Visible Workspace"
 
-if [[ $( wmctrl -l | grep "okular" ) ]]; then
-	wmctrl -a "okular"
+if [[ $( wmctrl -l | grep "Okular" ) ]]; then
+	wmctrl -a "Okular"
 	# wmctrl -R "okular"
 	sleep 0.3
 fi
