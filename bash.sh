@@ -193,7 +193,7 @@ opl () {
 
 csv_to_md () {
     local FILE=$1
-    header=$(head -n 1 $FILE)
+    header=$(head -n 1 $FILE | sed "s/,/|/g")
     n_cols=$(echo -n $header \
         | sed 's/[^,]//g' \
         | wc -m
