@@ -91,6 +91,18 @@ add_lit () {
     done
 }
 
+get_files() {
+    local files
+    for doi in $@; do
+        file=$(grep "$doi" lit -r -l)
+        files+="$(grep "$doi" lit -r -l) "
+        if [ -z $file ]; then
+            echo "File for DOI $doi missing."
+        fi
+    done
+    echo $files
+}
+
 # get_values () {
 #     POSITIONAL_ARGS=()
 #     while [[ $# -gt 0 ]]; do        
