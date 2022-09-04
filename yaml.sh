@@ -87,8 +87,11 @@ add_lit () {
             echo "This one is $i"
         fi
         # add_lit_one $i
-        ( add_lit_one $i $INPLACE $VERBOSE & )
+        add_lit_one $i $INPLACE $VERBOSE &
     done
+
+    wait
+
 }
 
 get_files() {
