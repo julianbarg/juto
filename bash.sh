@@ -1,10 +1,5 @@
 today=$(date +%F)
 
-yamlify () {
-    file=$1
-    yq -f=extract "." $file
-}
-
 yamladd () {
     file=$1
     key=$2
@@ -194,4 +189,29 @@ increment () {
 
 opl () {
     open $(latest $HOME/Downloads)
+}
+
+csv_to_md () {
+    local FILE=$1
+    header=$(head -n 1 $FILE)
+    n_cols=$(echo -n $header \
+        | sed 's/[^,]//g' \
+        | wc -m
+        )
+
+    seperator="---"
+    for i in {1 .. $n_cols}; do
+        seperator+="|---"
+    done
+
+    # Don't need to remove third in triple--reduced to double anyways
+    # | sed -E 's/"{3}/""/g' \
+    body=$(csvtool -u \| cat $FILE \
+        | sed '1d' \
+        | sed 's/""/thisisadouble/g' \
+        | sed 's/"//g' \
+        | sed 's/thisisadouble/"/g' )
+
+    output=$(echo -e "${header}\n${seperator}\n${body}")
+    echo "$output"
 }
