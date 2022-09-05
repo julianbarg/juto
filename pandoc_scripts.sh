@@ -6,5 +6,5 @@ word_default () {
 		--citeproc --bibliography $HOME/bibliography.bib \
 		--csl $HOME/apa-5th-edition.csl --reference-doc \
 		$HOME/Templates/word_manuscript.docx -o "$2" \
-	&& xdg-open "$2" &
+	&& ( xdg-open "$2" ) &
 }
