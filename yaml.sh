@@ -51,7 +51,7 @@ add_lit () {
         echo "Parsing arguments"
     fi
     SOURCE=$HOME/bibliography.yaml
-    VARS="\"doi\",\"container-title\", \"title-short\", \"container-title-short\", \"author\""
+    VARS="\"doi\", \"title-short\", \"container-title-short\", \"author\""
 
     YAML="$( yq "." $SOURCE )"
 
@@ -96,7 +96,7 @@ add_lit () {
 
 }
 
-get_files() {
+get_files () {
     local files
     for doi in $@; do
         file=$(grep "$doi" lit -r -l)
@@ -106,6 +106,23 @@ get_files() {
         fi
     done
     echo $files
+}
+
+find_pdf () {
+    ENTRY="$1"
+    FOLDER="$HOME/Zotero/storage/"
+    AUTHOR=$( yq '.author[0].family' $ENTRY )
+    YEAR=$( yq '.year' "$ENTRY" )
+    TITLE=$( yq '.title' "$ENTRY" )
+    TITLE=$( echo ${TITLE:0:20} )
+
+    # echo "Author: $AUTHOR"
+    # echo "Year: $YEAR"
+    # echo "Title: $TITLE"
+    
+    HIT=$( find "$FOLDER" -mindepth 2 -maxdepth 2 -path "*${AUTHOR}*${YEAR}*${TITLE}*" )
+
+    echo $HIT
 }
 
 # get_values () {
