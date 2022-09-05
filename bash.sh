@@ -215,3 +215,15 @@ csv_to_md () {
     output=$(echo -e "${header}\n${seperator}\n${body}")
     echo "$output"
 }
+
+input () {
+    PROMPT=$1
+    WORD=$2
+    while read -p "${PROMPT}`echo $'\n> '`" key <&1; do
+        if [[ -z $WORD && ! -z $key ]]; then
+            break
+        elif [[ $key == $WORD ]]; then
+            break
+        fi
+    done
+} 
