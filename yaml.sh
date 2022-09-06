@@ -53,13 +53,28 @@ add_lit () {
     SOURCE=$HOME/bibliography.yaml
     VARS="\"doi\", \"title-short\", \"container-title-short\", \"author\""
 
-    YAML="$( yq "." $SOURCE )"
+    YAML="$( yq '.[] 
+        |= (select(has("title-short") | not) 
+        | .title-short = .title)' $SOURCE -f=extract )"
+
+    # YAML="$( yq '.[] 
+    #     |= (select(has("title-short") | not) 
+    #     | .title-short = .title 
+    #     | .title-short style="double" 
+    #     | .title-short |= sub("\n", ""))' $SOURCE -f=extract )"
+
+    # YAML="$( yq '.[] 
+    #     |= (select(has("title-short") | not) 
+    #     | .title-short = .title 
+    #     | .title-short style="double" 
+    #     | .title-short |= sub("\n", "")
+    #     | .[].title-short |= sub("(.{100})(.*)", "${1}")' $SOURCE -f=extract )"
 
     add_lit_one () {
         local FILE=$1
         local INPLACE=$2
         local VERBOSE=$3
-        local tmpfile=$(mktemp $HOME/tmp/XXXXXXXXX.yaml)
+        local tmpfile=$(mktemp $HOME/tmp/XXXXXXXXX.tmpfile)
         local doi=$(yq '.doi' $FILE)
         if [[ $INPLACE = 'yes' ]]; then
             local INPLACE_ARG='-i'
@@ -72,7 +87,6 @@ add_lit () {
         yq ".[] \
             | select(.doi == \"$doi\") \
             | pick([$VARS]) \
-            | .journal = .container-title \
             | .journal_short = .container-title-short \
             | del(.container-title, .container-title-short)" <(echo "$YAML") \
             > $tmpfile
@@ -83,6 +97,12 @@ add_lit () {
         fi
         rm $tmpfile
     }
+
+    update_bib_yaml
+
+    yamllint ${POSITIONAL_ARGS[@]}
+
+    input "Continue?"
 
     for i in ${POSITIONAL_ARGS[@]}; do
         if [[ $VERBOSE = 'yes' ]]; then
@@ -113,7 +133,7 @@ find_pdf () {
     FOLDER="$HOME/Zotero/storage/"
     AUTHOR=$( yq '.author[0].family' $ENTRY )
     YEAR=$( yq '.year' "$ENTRY" )
-    TITLE=$( yq '.title' "$ENTRY" )
+    TITLE=$( yq '.title' "$ENTRY" | sed "s/[[:punct:]].*//")
     TITLE=$( echo ${TITLE:0:20} )
 
     # echo "Author: $AUTHOR"
@@ -122,7 +142,7 @@ find_pdf () {
     
     HIT=$( find "$FOLDER" -mindepth 2 -maxdepth 2 -path "*${AUTHOR}*${YEAR}*${TITLE}*" )
 
-    echo $HIT
+    echo "$HIT"
 }
 
 # get_values () {
