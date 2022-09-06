@@ -228,6 +228,14 @@ input () {
     done
 } 
 
+yy () {
+    xargs -I '{}' -- yq $@ {} -f=process
+}
+
 y () {
-    xargs -I '{}' -- yq $@ {}
+    ARG1=$1
+    ARG2=$2
+    shift
+    shift
+    yq "$ARG2" "$ARG1" -f=process $@
 }
