@@ -75,7 +75,7 @@ add_lit () {
         local INPLACE=$2
         local VERBOSE=$3
         local tmpfile=$(mktemp $HOME/tmp/XXXXXXXXX.tmpfile)
-        local doi=$(yq '.doi' $FILE)
+        local doi=$(yq '.doi' $FILE -f=extract)
         if [[ $INPLACE = 'yes' ]]; then
             local INPLACE_ARG='-i'
         fi
