@@ -227,3 +227,7 @@ input () {
         fi
     done
 } 
+
+y () {
+    xargs -I '{}' -- yq $@ {}
+}
