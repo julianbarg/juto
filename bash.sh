@@ -1,14 +1,5 @@
 today=$(date +%F)
 
-yamladd () {
-    file=$1
-    key=$2
-    value=$3
-    # yq -f=process -i ". + .\"${key}\"= \"value\"" $file
-    yq -f=process -i ". + {\"$key\": \"$value\"}" $file
-    sed -i "1 i\---" $file
-}
-
 yamlnt () {
     file=$1
     sed "/^---$/,/^---$/d" $file
