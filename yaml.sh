@@ -18,7 +18,7 @@ update_bib_yaml () {
     YAML_LOC=$HOME/bibliography
     pandoc "${YAML_LOC}.bib" -s -f biblatex -t markdown > "${YAML_LOC}.yaml" \
     && fix_wrong_yaml ${YAML_LOC}.yaml \
-    && yq '.references' "${YAML_LOC}.yaml" -i
+    && yq '.references' "${YAML_LOC}.yaml" -i -f=extract
 }
 
 add_lit () {
@@ -55,7 +55,7 @@ add_lit () {
 
     YAML="$( yq '.[] 
         |= (select(has("title-short") | not) 
-        | .title-short = .title)' $SOURCE -f=extract )"
+        | .title-short = .title)' $SOURCE )"
 
     # YAML="$( yq '.[] 
     #     |= (select(has("title-short") | not) 
@@ -88,7 +88,7 @@ add_lit () {
             | select(.doi == \"$doi\") \
             | pick([$VARS]) \
             | .journal_short = .container-title-short \
-            | del(.container-title, .container-title-short)" <(echo "$YAML") \
+            | del(.container-title-short)" <(echo "$YAML") \
             > $tmpfile
         yq ". *= load(\"$tmpfile\")" $FILE $INPLACE_ARG -f=process
         if [[ $VERBOSE = 'yes' ]]; then
