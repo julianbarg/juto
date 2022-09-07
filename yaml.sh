@@ -145,6 +145,15 @@ find_pdf () {
     echo "$HIT"
 }
 
+# # ToDo
+# check_ids () {
+#     ## Ingest list of identifiers such as DOI
+
+#     ## Look for every identifier in the lit folder
+
+#     ## Make sure every identifier has exactly one hit with grep
+# }
+
 # get_values () {
 #     POSITIONAL_ARGS=()
 #     while [[ $# -gt 0 ]]; do        
