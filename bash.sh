@@ -186,12 +186,12 @@ csv_to_md () {
     local FILE=$1
     header=$(head -n 1 $FILE | sed "s/,/|/g")
     n_cols=$(echo -n $header \
-        | sed 's/[^,]//g' \
+        | sed 's/[^|]//g' \
         | wc -m
         )
 
     seperator="---"
-    for i in {1 .. $n_cols}; do
+    for i in $(seq ${n_cols}); do
         seperator+="|---"
     done
 
