@@ -10,4 +10,4 @@ if [[ $( wmctrl -l | grep "Okular" ) ]]; then
 	sleep 0.3
 fi
 
-okular "$1"
+QT_SCALE_FACTOR=1.5 okular "$1"
