@@ -129,20 +129,25 @@ get_files () {
 }
 
 find_pdf () {
-    ENTRY="$1"
-    FOLDER="$HOME/Zotero/storage/"
-    AUTHOR=$( yq '.author[0].family' $ENTRY )
-    YEAR=$( yq '.year' "$ENTRY" )
-    TITLE=$( yq '.title' "$ENTRY" | sed "s/[[:punct:]].*//")
-    TITLE=$( echo ${TITLE:0:20} )
+    local ENTRY="$1"
+    local FOLDER="$HOME/Zotero/storage/"
+    local AUTHOR=$( yq '.author[0].family' <( echo "$ENTRY" ) )
+    local YEAR=$( yq '.year' <( echo "$ENTRY" ) )
+    local TITLE=$( yq '.title' <( echo "$ENTRY" ) )
+    local TITLE=$( echo ${TITLE:0:20} )
 
     # echo "Author: $AUTHOR"
     # echo "Year: $YEAR"
     # echo "Title: $TITLE"
-    
-    HIT=$( find "$FOLDER" -mindepth 2 -maxdepth 2 -path "*${AUTHOR}*${YEAR}*${TITLE}*" )
 
-    echo "$HIT"
+    local HIT=$( find "$FOLDER" -mindepth 2 -maxdepth 2 -path "*${AUTHOR}*${YEAR}*${TITLE}*" )
+    echo $HIT
+}
+
+yamladd () {
+    local LIT=$HOME/lit/notes/*
+    local DESTINATION=$HOME/lit/notes.yaml
+    find $LIT -exec yq '[.]' -f=extract {} \; > $DESTINATION
 }
 
 # # ToDo
