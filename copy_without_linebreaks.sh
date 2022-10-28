@@ -6,14 +6,14 @@
 
 # Parses currently selected text
 
-SelectedText="$(xsel)"
+selected_text="$(xsel)"
 
-ModifiedText="$(echo "$SelectedText" | \
+modified_text="$(echo "$selected_text" | \
     sed -e 's/-$/||/g' -e 's/^\s*$/|/g' \
         | tr '\n' ' ' \
         | sed 's/|| //g' \
         | tr '|' '\n' \
         | sed 's/|$//')"
 
-printf "$ModifiedText" | xsel -bi
+printf "$modified_text" | xsel -bi
 

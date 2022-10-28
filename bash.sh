@@ -210,23 +210,35 @@ csv_to_md () {
 input () {
     PROMPT=$1
     WORD=$2
+    FUNCTION=$3
     while read -p "${PROMPT}`echo $'\n> '`" key <&1; do
         if [[ -z $WORD && ! -z $key ]]; then
             break
         elif [[ $key == $WORD ]]; then
+            $FUNCTION
             break
         fi
     done
 } 
 
+y () {
+    local FILES="$1"
+    shift
+    find $FILES -exec yq -f=process "$@" {} \;
+}
+
 yy () {
     xargs -I '{}' -- yq $@ {} -f=process
 }
 
-y () {
+yyy () {
     ARG1=$1
     ARG2=$2
     shift
     shift
     yq "$ARG2" "$ARG1" -f=process $@
 }
+
+# save () {
+#     SAVE=$(xclip -o -selection clipboard)
+# }

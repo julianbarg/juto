@@ -199,3 +199,7 @@ yamladd () {
 
 #     yq "[.[] | pick([$str])]" $FILE
 # }
+
+fix () {
+    yq "$@" -C | sed 's/\\n/\n/g'
+}

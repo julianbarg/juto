@@ -17,6 +17,6 @@ fi
 
 body=$( fmt <(echo "$body") -w 72 )
 
-echo "$HEAD" "$body" > $HOME/tmp/reflow.md
+echo "$HEAD" "$body" > "$HOME/tmp/reflow.md"
 
-cp $HOME/tmp/reflow.md > "$FILE"
+cp "$HOME/tmp/reflow.md" "$FILE"
