@@ -84,13 +84,14 @@ latest () {
 
     # if [[ "$recursive" = true ]]; then
         # Makes it so it only searches non-hidden
-    find $folder -not -path '*/.*' -type f -printf '%T@ %p\n' \
+    files="$(find $folder -not -path '*/.*' -type f -printf '%T@ %p\n' \
         | sort -n \
         | tail -"$number" \
-        | cut -f2- -d" "
+        | cut -f2- -d" ")"
     # else
     #     ls $folder -t | head -n $number
-    # fi    
+    # fi
+    echo "$files"
 }
 
 bind_pdfs () {
