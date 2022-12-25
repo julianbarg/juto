@@ -1,0 +1,39 @@
+#!/usr/bin/env Rscript
+
+args = commandArgs(trailingOnly=TRUE)
+
+library(knitr)
+library(argparse)
+suppressPackageStartupMessages(library(kableExtra, quietly = T))
+
+parser <- ArgumentParser()
+parser$add_argument("input")
+parser$add_argument("output")
+parser$add_argument("-w", "--width", dest = "width", type = "integer", default = 5)
+parser$add_argument("proportions", nargs="+", type = "double")
+args <- parser$parse_args()
+
+paste0("Writing table from ", args$input, " to ", args$output, ".")
+
+table <- yaml::read_yaml(args$input) %>%
+  purrr::map_dfr(purrr::flatten) %>%
+  kable("latex", escape = F)
+
+if (! is.null(args$proportions)) {
+  for (i in 1:length(args$proportions)) {
+    table <- column_spec(table, i,
+                         width = paste0(args$proportions[i], "in"))
+  }
+}
+
+message(args$width)
+
+location <- table %>%
+  kable_styling(latex_options = c("basic")) %>%
+  # kable_styling(latex_options = c("basic", "scale_down")) %>%
+  row_spec(0,bold=TRUE) %>%
+  as_image(width = args$width)
+
+file.copy(from = location[1], to = args$output, overwrite = T)
+# system(paste("xdg-open", args$output))
+# system(paste("firefox", args$output))
