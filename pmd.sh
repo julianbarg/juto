@@ -44,7 +44,7 @@ main () {
   fi
 
   # sed -E "s/^.{1,10}$//g" "$TMP.md" -i 
-  sed -z "s/\([a-z]\)\(\n\n\)\([a-z]\)/\1 \3/g" "$TMP.md" -i 
+  sed -z -E "s/([a-z],?)(\n\n)(\"?[a-z])/\1 \3/g" "$TMP.md" -i 
   echo "$(fmt -w 72 "${TMP}.md")" > "${TMP}.md" 
   cat "$HOME/juto/default_header.yaml" > "$DESTINATION" 
   cat -s "$TMP.md" >> "$DESTINATION"
