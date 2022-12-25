@@ -2,9 +2,7 @@
 
 args = commandArgs(trailingOnly=TRUE)
 
-options(tidyverse.quiet = TRUE)
-
-library(tidyverse)
+library(knitr)
 library(argparse)
 suppressPackageStartupMessages(library(kableExtra, quietly = T))
 
@@ -17,8 +15,10 @@ args <- parser$parse_args()
 
 paste0("Writing table from ", args$input, " to ", args$output, ".")
 
-table <- read_csv(args$input, show_col_types = F) %>%
-  kable("latex")
+table <- readr::read_csv(args$input, show_col_types = F) %>%
+# table <- read.csv(args$input) %>%
+  kable("latex") %>%
+  row_spec(0,bold=TRUE)
 
 if (! is.null(args$proportions)) {
   for (i in 1:length(args$proportions)) {
@@ -31,8 +31,9 @@ message(args$width)
 
 location <- table %>%
   kable_styling(latex_options = c("basic")) %>%
+  # kable_styling(latex_options = c("basic", "scale_down")) %>%
   as_image(width = args$width)
 
 file.copy(from = location[1], to = args$output, overwrite = T)
 # system(paste("xdg-open", args$output))
-system(paste("firefox", args$output))
+# system(paste("firefox", args$output))
