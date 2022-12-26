@@ -29,12 +29,14 @@ if (! is.null(args$proportions)) {
 message(args$width)
 
 location <- table %>%
-  kable_styling(latex_options = c("basic", "scale_down")) %>%
+  kable_styling(latex_options = c("basic", "hold_position"), font_size = 12) %>%
   row_spec(0,bold=TRUE) %>%
   as_image(width = args$width,
            # latex_header_includes = c("\\usepackage{newtxtext,newtxmath}")
-           latex_header_includes = c("\\usepackage{fontspec}",
-                                     "\\setmainfont{Times New Roman}")
+           latex_header_includes = c("\\usepackage[letter, margin=1.08in]{geometry}",
+                                     "\\usepackage{fontspec}",
+                                     "\\setmainfont{Times New Roman}"),
+           density = 300
            )
 
 file.copy(from = location[1], to = args$output, overwrite = T)
