@@ -1,0 +1,1 @@
+mutool poster -x 2 input.pdf output.pdf
