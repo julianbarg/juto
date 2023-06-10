@@ -9,11 +9,15 @@ FORECAST=$(curl -s "http://api.openweathermap.org/data/2.5/forecast?q=${CITY},ca
 CURRENT_T="$(echo "$CURRENT" | yq '.main.feels_like')"
 FORECAST_T="$(echo "$FORECAST" \
   | yq '[.list.[:6] | 
-    .[] | [{"time": .dt_txt, "temp": .main.feels_like}] | 
+    .[] | [{"time": .dt_txt, "temp": .main.feels_like, "rain": .weather[0].description}] | 
     .[] | .time |= split(" ").[1] | 
-    .time |= split(":").[0]]' -o=csv)"
+    .time |= split(":").[0]]')"
 
-echo "$FORECAST_T" \
+echo "$FORECAST_T" > ~/out/test.yaml
+
+echo "$FORECAST_T" | yq '.[] |= pick(["time", "rain"]) | .[] | [.time, .rain] | join("h: ")'
+
+echo "$FORECAST_T" | yq '.' -o=csv \
   | awk 'BEGIN{FS=OFS=","} {if(NR==1){print "Index",$0}else{print (NR-2)*3,$0}}' \
   | cut -d',' -f1,3- \
   | uplot --title "Forecast" -H lineplot -d , --xlabel "Hours" --ylabel "°C" -w 72 --xlim 0,15
