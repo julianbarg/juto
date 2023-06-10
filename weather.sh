@@ -15,12 +15,12 @@ FORECAST_T="$(echo "$FORECAST" \
 
 echo "$FORECAST_T" > ~/out/test.yaml
 
-echo "$FORECAST_T" | yq '.[] |= pick(["time", "rain"]) | .[] | [.time, .rain] | join("h: ")'
-
 echo "$FORECAST_T" | yq '.' -o=csv \
   | awk 'BEGIN{FS=OFS=","} {if(NR==1){print "Index",$0}else{print (NR-2)*3,$0}}' \
   | cut -d',' -f1,3- \
   | uplot --title "Forecast" -H lineplot -d , --xlabel "Hours" --ylabel "°C" -w 72 --xlim 0,15
+
+echo "$FORECAST_T" | yq '.[] |= pick(["time", "rain"]) | .[] | [.time, .rain] | join("h: ")' | head -n -2
 
 # gnuplot -persist <<EOF
 # set datafile separator ","
