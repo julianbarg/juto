@@ -1,29 +1,83 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
-# 1. Create id
-# 2. Get input and save to $tmp/$id_a
-# 3. Escape double quote in input with sed
-# 4. Create tmp sgpt session
-# 5. Ask sgpt for copy edit and save to $tmp_$id_b
-# 6. Print diff to shell with wdiff ~/tmp/a.md ~/tmp/b.md | colordiff
-# 7. Accept user input for adjustments
+# Default model argument
+model="gpt-4"
 
-id=$(date "+%Y-%m-%dT%H:%M:%S")
-input="$HOME/tmp/${id}_in"
-output="$HOME/tmp/${id}_out"
+# Default role argument
+role="coauthor"
 
-# wl-paste | sed 's/"/\\"/g' > "$input"
-wl-paste > "$input"
-sgpt --chat "$id" --role "gpt4" "$( cat $input )" > "$output"
-printf -- "------------------\n"
-wdiff -n "$input" "$output" | colordiff #| less -R
+# Default temperature argument
+temperature=0
 
-while true
-do
-  read -p ">>>" refine
-  sgpt --chat "$id" --role "gpt4" "$refine" > "$output"
-  wdiff -n "$input" "$output" | colordiff #| less -R
-  echo
+# Default input source
+input_source=""
+
+# Default input
+input=""
+
+# Help function
+function display_help {
+  echo "Usage: script.sh [OPTIONS]"
+  echo "Options:"
+  echo "  -h, --help          Display this help message"
+  echo "  --3.5               Use gpt-3.5-turbo model instead of the default gpt-4"
+  echo "  -t, --temperature   Set the temperature value (default: 0)"
+  echo "  -p, --proofread     Set the role to 'proofread'"
+  echo "  -i, --input         Specify the input directly"
+  echo "  -c, --clipboard     Use the clipboard for input"
+}
+
+# Process optional flags and arguments
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+      display_help
+      exit 0
+      ;;
+    --3.5)
+      model="gpt-3.5-turbo"
+      ;;
+    -t|--temperature)
+      temperature=$2
+      shift
+      ;;
+    -p|--proofread)
+      role="proofread"
+      ;;
+    -i|--input)
+      input_source="direct"
+      shift
+      input="$*"
+      break
+      ;;
+    -c|--clipboard)
+      input_source="clipboard"
+      ;;
+    *)
+      echo "Unknown option: $1"
+      display_help
+      exit 1
+      ;;
+  esac
+  shift
 done
-```
 
+# If no input source was specified, display the help message and exit
+if [ -z "$input_source" ]; then
+  display_help
+  exit 0
+fi
+
+# Get input from the specified source
+if [ "$input_source" = "clipboard" ]; then
+  input=$(wl-paste)
+fi
+
+# Run the command with the chosen model, role, temperature,
+# using $input as the input, and pipe the output to wdiff and colordiff
+echo "$input" \
+  | sgpt --role "$role" --model "$model" \
+    --temperature "$temperature" --chat temp \
+  | wdiff -n <(echo "$input") - \
+  | colordiff \
+  && paplay /usr/share/sounds/freedesktop/stereo/complete.oga
