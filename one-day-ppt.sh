@@ -12,10 +12,11 @@ COMPILE_TEMPLATE="$HOME/Templates/compile_ppt.sh"
 PPT_TEMPLATE="$HOME/Templates/slides.md"
 
 help () {
-  echo "Usage: ./compile.sh [OPTION]"
+  echo "Usage: ./compile.sh -p|--project [PROJECT]"
   echo "Options:"
-  echo "  -p, --project   Set project name."
-  exit 0
+  echo "  -h, --help      Print this help message."
+  echo "  -p, --project   Set project name (required)."
+  exit 1
 }
 
 while (( "$#" )); do
@@ -30,17 +31,17 @@ while (( "$#" )); do
     *) 
       echo "Error: Invalid argument"
       help
-      exit 1
       ;;
   esac
   shift
 done
 
-# Get project name
+# Check if project name is set
 if [ -z "${PROJ:-}" ]; then
-  echo "Choose name for the project."
-  read -p "> " PROJ
+  echo "Error: Missing required option -p|--project"
+  help
 fi
+
 PROJ_FOLDER="${DOCS_DIR}/${YEAR}/${PROJ}"
 mkdir -p ${PROJ_FOLDER}
 cd ${PROJ_FOLDER}
@@ -48,6 +49,7 @@ mkdir -p resources
 
 if [[ ! -f slides.md ]]; then
   cp ${PPT_TEMPLATE} slides.md
+  subl --project "$HOME/docs/docs.sublime-project" slides.md
 fi
 
 if [[ ! -f compile.sh ]]; then
