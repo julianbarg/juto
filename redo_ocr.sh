@@ -9,6 +9,7 @@ PDF_OCR_REMOVE_SCRIPT="$HOME/juto/remove_PDF_text.py"
 TMP_DIR="$HOME/tmp"
 DEFAULT_OUTDIR="$HOME/out"
 DEFAULT_CORES=6
+AUTHOR=""
 
 # Default options for ocrmypdf
 DESK_SKEW=""
@@ -18,12 +19,14 @@ VERBOSE=false
 
 # Define a help function for the script usage
 function help {
-    echo "Usage: $0 [-h|--help] [--title TITLE] [--strip-first] [--no-title] [--deskew] [--clean-final] [--lossy] [--out OUTFILE] [-v|--verbose] input_file"
+    echo "Usage: $0 [-h|--help] [--title TITLE] [--author AUTHOR] [--skip-first] [--skip-last] [--no-title] [--deskew] [--clean-final] [--lossy] [--out OUTFILE] [-v|--verbose] input_file"
     echo
     echo "Options:"
     echo "  -h, --help             Show this help message and exit"
     echo "  -t, --title TITLE      Specify the title, used for ocrmypdf and output filename"
+    echo "  -a, --author AUTHOR    Specify the author, passed to ocrmypdf"
     echo "  -s, --skip-first       Optional, if present will strip the first page"
+    echo "      --skip-last        Optional, if present will strip the last page"
     echo "      --no-title         Opt out of title requirement"
     echo "  -d, --deskew           Optional, if present will deskew the input using ocrmypdf"
     echo "  -i, --clean-final      Pass '--clean-final' to ocrmypdf"
@@ -39,7 +42,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # Parse command line options.
-OPTS=$(getopt -o ht:sdil:o:v --long help,title:,skip-first,no-title,deskew,clean-final,lossy,out:,verbose -- "$@")
+OPTS=$(getopt -o ht:a:sdil:o:v --long help,title:,author:,skip-first,skip-last,no-title,deskew,clean-final,lossy,out:,verbose -- "$@")
 if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 
@@ -52,8 +55,16 @@ while true; do
       TITLE="$2"
       shift 2
       ;;
+    -a | --author )
+      AUTHOR="$2"
+      shift 2
+      ;;
     -s | --skip-first ) 
       STRIPFIRST=true
+      shift
+      ;;
+    --skip-last ) 
+      SKIPLAST=true
       shift
       ;;
     --no-title ) 
@@ -117,7 +128,9 @@ fi
 if $VERBOSE; then
     echo "input file: $inputfile"
     echo "title: ${TITLE:-}"
+    echo "author: ${AUTHOR:-}"
     echo "skip first: ${STRIPFIRST:-false}"
+    echo "skip last: ${SKIPLAST:-false}"
     echo "no title: ${NO_TITLE_REQ:-false}"
     echo "deskew: ${DESK_SKEW:-false}"
     echo "clean final: ${CLEAN_FINAL:-false}"
@@ -138,8 +151,17 @@ if [[ ! -z "${STRIPFIRST:-}" ]]; then
     inputfile="$TMP_DIR/stripped_first_page.pdf"
 fi
 
+# Strip the last page unless opted out
+if [[ ! -z "${SKIPLAST:-}" ]]; then
+    echo "Stripping the last page..."
+    num_pages=$(pdftk "$inputfile" dump_data | grep NumberOfPages | cut -d":" -f2)
+    let "num_pages-=1"
+    pdftk "$inputfile" cat 1-$num_pages output "$TMP_DIR/stripped_last_page.pdf"
+    inputfile="$TMP_DIR/stripped_last_page.pdf"
+fi
+
 # Run OCR to create a new OCR layer
 echo "Creating a new OCR layer..."
-ocrmypdf -l eng --title "$TITLE" -O3 ${CLEAN_FINAL:-} \
+ocrmypdf -l eng --title "$TITLE" --author "$AUTHOR" -O3 ${CLEAN_FINAL:-} \
   $JBIG2_LOSSY $DESK_SKEW --jobs "$DEFAULT_CORES" \
   "$inputfile" "$OUTFILE"
