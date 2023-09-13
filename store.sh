@@ -9,22 +9,37 @@ if [[ "${TRACE-0}" == "1" ]]; then
 fi
 
 display_help() {
-    echo 'Usage: ./store.sh pattern [-o OUTDIR] [-i INDIR] [-f FILETYPE]
+    echo 'Usage: ./store.sh PATTERN [OPTIONS]
 
 This script moves the most recent file using the provided pattern as its 
 filename to the target destination.
 
+Arguments:
+  PATTERN         The primary pattern to look for in filenames.
+
+Options:
+  -h, --help      Display this help message.
+  -o, --output    Specify the output directory (default is $HOME/out).
+  -i, --input     Specify the input directory (default is current directory).
+  -f, --filetype  Specify the filetype (e.g., "pdf" or ".pdf"; default is "*").
+  -p, --print     Enable print mode: Show filename before copying.
+  -c, --check     Enable check mode: Open the file for inspection before copying.
+
 Examples:
 ./store.sh example
     # Moves the most recent file in the default directory to 
-    # .example.{$FILETYPE}
+    # .example_0.{$FILETYPE} or the next available number.
 
 ./store.sh example -f pdf
-    # Moves the most recent pdf in the default directory to .example.pdf
+    # Moves the most recent pdf in the default directory to .example_0.pdf or 
+    # the next available number.
 
 ./store.sh example -i ~/tmp -o ~/out -f pdf
-    # Moves the most recent pdf from ~/tmp to ~/out/example.pdf
+    # Moves the most recent pdf from ~/tmp to ~/out/example_0.pdf or the 
+    # next available number.
 '
+
+exit 0
 }
 
 # If no arguments or help is explicitly asked, display the help message.
@@ -43,7 +58,6 @@ CHECK_MODE=0
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
-        -h|--help) display_help;;
         -o|--output) DIR="$2"; shift ;;
         -i|--input) INDIR="$2"; shift ;;
         -f|--filetype) FILETYPE="${2#.}"; shift ;; # Strips leading period, if it exists.
@@ -104,13 +118,13 @@ fi
 
 # Function to determine the appropriate destination filename
 get_destination() {
-    local base="$1"
-    local counter=0 # Start from 0
-    while [[ -e "$base" ]]; do
-        base="${DIR}/${PATTERN}_${counter}.${FILETYPE}"
+    local counter=0
+    local destination="${DIR}/${PATTERN}_${counter}.${FILETYPE}"
+    while [[ -e "$destination" ]]; do
         ((counter++))
+        destination="${DIR}/${PATTERN}_${counter}.${FILETYPE}"
     done
-    echo "$base"
+    echo "$destination"
 }
 
 DESTINATION=$(get_destination "$DIR/$PATTERN.$FILETYPE")
