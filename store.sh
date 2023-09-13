@@ -46,7 +46,7 @@ while [[ "$#" -gt 0 ]]; do
         -h|--help) display_help;;
         -o|--output) DIR="$2"; shift ;;
         -i|--input) INDIR="$2"; shift ;;
-        -f|--filetype) FILETYPE="$2"; shift ;;
+        -f|--filetype) FILETYPE="${2#.}"; shift ;; # Strips leading period, if it exists.
         -p|--print) PRINT_MODE=1 ;;
         -c|--check) CHECK_MODE=1 ;;
         *) 
@@ -105,7 +105,7 @@ fi
 # Function to determine the appropriate destination filename
 get_destination() {
     local base="$1"
-    local counter=1
+    local counter=0 # Start from 0
     while [[ -e "$base" ]]; do
         base="${DIR}/${PATTERN}_${counter}.${FILETYPE}"
         ((counter++))
