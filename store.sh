@@ -21,6 +21,11 @@ Examples:
     exit
 fi
 
+# If no arguments or help is explicitly asked, display the help message.
+if [[ "$#" -eq 0 || "${1-}" =~ ^-*h(elp)?$ ]]; then
+    display_help
+fi
+
 # Default directory and file type
 DIR="$HOME/out"
 FILETYPE="*"
