@@ -36,8 +36,7 @@ fi
 DIR="$HOME/out"
 FILETYPE="*"
 
-PATTERN="$1"
-shift # Move to the next argument
+PATTERN=""
 
 PRINT_MODE=0
 CHECK_MODE=0
@@ -50,10 +49,23 @@ while [[ "$#" -gt 0 ]]; do
         -f|--filetype) FILETYPE="$2"; shift ;;
         -p|--print) PRINT_MODE=1 ;;
         -c|--check) CHECK_MODE=1 ;;
-        *) echo "Unknown option: $1"; exit 1 ;;
+        *) 
+            if [[ -z "$PATTERN" && ! "$1" =~ ^- ]]; then
+                PATTERN="$1"
+            else
+                echo "Unknown option or multiple patterns provided: $1"
+                exit 1
+            fi
+            ;;
     esac
     shift # Move to the next argument
 done
+
+if [[ -z "$PATTERN" ]]; then
+    echo "A pattern is required!"
+    display_help
+    exit 1
+fi
 
 # If INDIR isn't set, default to current directory
 INDIR="${INDIR-.}" 
