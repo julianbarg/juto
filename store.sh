@@ -8,18 +8,18 @@ if [[ "${TRACE-0}" == "1" ]]; then
     set -o xtrace
 fi
 
-if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
+display_help() {
     echo 'Usage: ./store.sh pattern [-o OUTDIR] [-i INDIR] [-f FILETYPE]
 
-This script copies the most recent file to the target destination, using the provided pattern as a filename.
+This script moves the most recent file to the target destination, using the provided pattern as a filename.
 
 Examples:
-./store.sh example                            # Copies the most recent file in the default directory to .example.{$FILETYPE}
-./store.sh example -f pdf                     # Copies the most recent pdf in the default directory to .example.pdf
-./store.sh example -i ~/tmp -o ~/out -f pdf   # Copies the most recent pdf from ~/tmp to ~/out/example.pdf
+./store.sh example                            # Moves the most recent file in the default directory to .example.{$FILETYPE}
+./store.sh example -f pdf                     # Moves the most recent pdf in the default directory to .example.pdf
+./store.sh example -i ~/tmp -o ~/out -f pdf   # Moves the most recent pdf from ~/tmp to ~/out/example.pdf
 '
     exit
-fi
+}
 
 # If no arguments or help is explicitly asked, display the help message.
 if [[ "$#" -eq 0 || "${1-}" =~ ^-*h(elp)?$ ]]; then
@@ -38,6 +38,7 @@ CHECK_MODE=0
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
+        -h|--help) display_help;;
         -o|--output) DIR="$2"; shift ;;
         -i|--input) INDIR="$2"; shift ;;
         -f|--filetype) FILETYPE="$2"; shift ;;
