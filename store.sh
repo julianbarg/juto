@@ -11,14 +11,20 @@ fi
 display_help() {
     echo 'Usage: ./store.sh pattern [-o OUTDIR] [-i INDIR] [-f FILETYPE]
 
-This script moves the most recent file to the target destination, using the provided pattern as a filename.
+This script moves the most recent file using the provided pattern as its 
+filename to the target destination.
 
 Examples:
-./store.sh example                            # Moves the most recent file in the default directory to .example.{$FILETYPE}
-./store.sh example -f pdf                     # Moves the most recent pdf in the default directory to .example.pdf
-./store.sh example -i ~/tmp -o ~/out -f pdf   # Moves the most recent pdf from ~/tmp to ~/out/example.pdf
+./store.sh example
+    # Moves the most recent file in the default directory to 
+    # .example.{$FILETYPE}
+
+./store.sh example -f pdf
+    # Moves the most recent pdf in the default directory to .example.pdf
+
+./store.sh example -i ~/tmp -o ~/out -f pdf
+    # Moves the most recent pdf from ~/tmp to ~/out/example.pdf
 '
-    exit
 }
 
 # If no arguments or help is explicitly asked, display the help message.
