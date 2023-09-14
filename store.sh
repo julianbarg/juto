@@ -38,7 +38,6 @@ Examples:
     # Moves the most recent pdf from ~/tmp to ~/out/example_0.pdf or the 
     # next available number.
 '
-
 exit 0
 }
 
@@ -92,6 +91,18 @@ if [[ -z "$FILE" ]]; then
     echo "No file found matching the pattern and filetype."
     exit 1
 fi
+
+# Compute checksum of the source file
+CHECKSUM_SRC=$(sha256sum "$FILE" | awk '{print $1}')
+
+# Loop over the last 25 files in the destination directory
+for dest_file in $(ls -t ${DIR}/*.${FILETYPE} | head -25); do
+    CHECKSUM_DEST=$(sha256sum "$dest_file" | awk '{print $1}')
+    if [[ "$CHECKSUM_SRC" == "$CHECKSUM_DEST" ]]; then
+        echo "Checksum of the file matches one of the last 25 files in the destination. Aborting."
+        exit 1
+    fi
+done
 
 # If PRINT_MODE is enabled, show the filename to the user
 if [[ "$PRINT_MODE" -eq 1 ]]; then
