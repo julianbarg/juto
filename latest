@@ -2,24 +2,23 @@
 
 # Default values
 number=1
-folder="."
+folder="$HOME/Downloads" # Changed default folder to ~/Downloads
 recursive=false
 
 print_help() {
     echo "Usage: $0 [-n number_of_files] [-r|--recursive] [folder_location]"
     echo "  -n: Number of latest files to fetch. Default is 1."
     echo "  -r, --recursive: Search recursively in subfolders."
-    echo "  folder_location: Directory to search in. Default is current directory."
+    echo "  folder_location: Directory to search in. Default is ~/Downloads."
     exit 1
 }
 
-# Check if no arguments provided
-if [ "$#" -eq 0 ]; then
-    print_help
-fi
-
+# Parse command-line arguments
 while [ "$#" -gt 0 ]; do
     case "$1" in
+        -h|--help)
+            print_help
+            ;;
         -n)
             shift
             number="$1"
@@ -47,4 +46,3 @@ eval "$find_cmd -printf '%T@ %p\n'" \
     | sort -n \
     | tail -"$number" \
     | cut -f2- -d" "
-
